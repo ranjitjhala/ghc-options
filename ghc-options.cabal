@@ -17,7 +17,7 @@ build-type:          Simple
 cabal-version:       >=1.10
 
 library
-  -- exposed-modules:     
+  exposed-modules:     Language.Haskell.GhcOpts
   -- other-modules:       
   -- other-extensions:    
   build-depends:       base >=4.8 && <4.9
