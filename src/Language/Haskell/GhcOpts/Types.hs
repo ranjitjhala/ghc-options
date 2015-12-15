@@ -1,9 +1,11 @@
 module Language.Haskell.GhcOpts.Types (
-    CmdExtra    (..)
-  , Config      (..)
-  , CabalConfig (..)
-  , StackConfig (..)
+    CommandExtra (..)
+  , Config       (..)
+  , CabalConfig  (..)
+  , StackConfig  (..)
   ) where
+
+import System.Posix.Types (EpochTime)
 
 data Config = Config
   { configGhcOpts :: [String]
@@ -24,3 +26,12 @@ data StackConfig = StackConfig
   , stackDbs  :: [FilePath]
   }
   deriving (Eq, Show)
+
+-- | Bonus config parameters used to override those in .cabal and stack.yaml
+
+data CommandExtra = CommandExtra
+  { ceGhcOptions   :: [String]
+  , ceCabalConfig  :: Maybe FilePath
+  , cePath         :: Maybe FilePath
+  , ceCabalOptions :: [String]
+  } deriving (Read, Show)

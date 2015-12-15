@@ -1,11 +1,13 @@
 {-# LANGUAGE CPP #-}
-module Cabal
+module Language.Haskell.GhcOpts.Cabal
   ( getPackageGhcOpts
+  , mkCabalConfig
   , findCabalFile
   ) where
 
-#ifdef ENABLE_CABAL
-import Stack
+import Language.Haskell.GhcOpts.Types
+
+import System.Posix.Files (getFileStatus, modificationTime)
 import Control.Exception (IOException, catch)
 import Control.Monad (when)
 import Control.Monad.Trans.Class (lift)
@@ -233,20 +235,18 @@ findCabalFile dir = do
          in if parentDir == dir
             then return Nothing
             else findCabalFile parentDir
-
   where
-
     isCabalFile :: FilePath -> Bool
     isCabalFile path = cabalExtension `isSuffixOf` path
                     && length path > length cabalExtension
         where cabalExtension = ".cabal"
 
-# else
-
-getPackageGhcOpts :: FilePath -> [String] -> IO (Either String [String])
-getPackageGhcOpts _ _ = return $ Right []
-
-findCabalFile :: FilePath -> IO (Maybe FilePath)
-findCabalFile _ = return Nothing
-
-#endif
+--------------------------------------------------------------------------------
+mkCabalConfig :: FilePath -> [String] -> IO CabalConfig
+--------------------------------------------------------------------------------
+mkCabalConfig path opts = do
+    fileStatus <- getFileStatus path
+    return $ CabalConfig { cabalConfigPath = path
+                         , cabalConfigOpts = opts
+                         , cabalConfigLastUpdatedAt = modificationTime fileStatus
+                         }
