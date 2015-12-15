@@ -1,9 +1,9 @@
 import System.Environment
 
-import Language.Haskell.GhcOptions
+import Language.Haskell.GhcOpts
 
 main :: IO ()
-main = do 
+main = do
   f:_ <- getArgs
-  z   <- ghcOpts z
+  z   <- ghcOpts f
   putStrLn $ "GHC Options: " ++ show z
