@@ -1,5 +1,6 @@
 module Language.Haskell.GhcOpts.Types (
     CommandExtra (..)
+  , emptyCommand
   , Config       (..)
   , CabalConfig  (..)
   , StackConfig  (..)
@@ -35,3 +36,6 @@ data CommandExtra = CommandExtra
   , cePath         :: Maybe FilePath
   , ceCabalOptions :: [String]
   } deriving (Read, Show)
+
+emptyCommand :: CommandExtra
+emptyCommand = CommandExtra [] Nothing Nothing []

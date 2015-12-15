@@ -6,14 +6,18 @@ module Language.Haskell.GhcOpts
 import System.Directory (setCurrentDirectory)
 import System.FilePath  (takeDirectory)
 
+import Language.Haskell.GhcOpts.Utils
 import Language.Haskell.GhcOpts.Types
 import Language.Haskell.GhcOpts.Cabal
 import Language.Haskell.GhcOpts.Stack
 
---------------------------------------------------------------------------------
-ghcOpts :: CommandExtra -> IO (Either String Config)
---------------------------------------------------------------------------------
-ghcOpts cmd = newConfig cmd >>= packageConfig
+ghcOpts :: FilePath -> IO (Either String Config)
+ghcOpts f = fileCommand f >>= newConfig >>= packageConfig
+
+fileCommand :: FilePath -> IO CommandExtra
+fileCommand f = do
+  mCabalFile <- findCabalFile (Just f) >>= traverse absoluteFilePath
+  return $ emptyCommand { cePath = Just f, ceCabalConfig  = mCabalFile}
 
 newConfig :: CommandExtra -> IO Config
 newConfig cmd = do

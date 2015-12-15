@@ -16,10 +16,26 @@ build-type:          Simple
 -- extra-source-files:
 cabal-version:       >=1.10
 
+executable ghcopts
+  hs-source-dirs:      src
+  ghc-options:         -Wall
+  cpp-options:         -DCABAL
+  main-is:             Main.hs
+  build-depends:       base >=4.8 && <4.9,
+                       process,
+                       filepath,
+                       directory,
+                       transformers,
+                       Cabal >= 1.22,
+                       bin-package-db,
+                       unix
+                       
+  hs-source-dirs:      src
+  default-language:    Haskell2010
+  cpp-options:       -DENABLE_CABAL
+
 library
-  exposed-modules:     Language.Haskell.GhcOpts.Types
-  -- other-modules:
-  -- other-extensions:
+  exposed-modules:     Language.Haskell.GhcOpts
   build-depends:       base >=4.8 && <4.9,
                        process,
                        filepath,

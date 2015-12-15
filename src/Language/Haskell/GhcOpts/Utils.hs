@@ -8,6 +8,13 @@ import Control.Exception
 import System.Process
 import Data.Char (isSpace)
 import System.FilePath
+import System.Directory
+
+absoluteFilePath :: FilePath -> IO FilePath
+absoluteFilePath p = if isAbsolute p then return p else do
+    dir <- getCurrentDirectory
+    return $ dir </> p
+
 
 pathsToRoot :: FilePath -> [FilePath]
 pathsToRoot p

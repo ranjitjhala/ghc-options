@@ -44,7 +44,7 @@ import Distribution.Verbosity (silent)
 import Distribution.Version (Version(..))
 
 import System.IO.Error (ioeGetErrorString)
-import System.Directory (doesFileExist, getDirectoryContents)
+import System.Directory (getCurrentDirectory, doesFileExist, getDirectoryContents)
 import System.FilePath (takeDirectory, splitFileName, (</>))
 
 
@@ -224,29 +224,30 @@ getSandboxPackageDB sandboxPath = do
     extractValue = fst . break isSpace . dropWhile isSpace . drop (length pkgDbKey)
 
 
-findCabalFile :: FilePath -> IO (Maybe FilePath)
-findCabalFile dir = do
-    allFiles <- getDirectoryContents dir
-    let mbCabalFile = find (isCabalFile) allFiles
-    case mbCabalFile of
-      Just cabalFile -> return $ Just $ dir </> cabalFile
-      Nothing ->
-        let parentDir = takeDirectory dir
-         in if parentDir == dir
-            then return Nothing
-            else findCabalFile parentDir
+findCabalFile :: Maybe FilePath -> IO (Maybe FilePath)
+findCabalFile f = go =<< maybe getCurrentDirectory (return . takeDirectory) f
   where
-    isCabalFile :: FilePath -> Bool
-    isCabalFile path = cabalExtension `isSuffixOf` path
-                    && length path > length cabalExtension
-        where cabalExtension = ".cabal"
+    go dir = do
+      allFiles <- getDirectoryContents dir
+      let mbCabalFile = find isCabalFile allFiles
+      case mbCabalFile of
+        Just cabalFile -> return $ Just $ dir </> cabalFile
+        Nothing ->
+          let parentDir = takeDirectory dir in
+           if parentDir == dir then return Nothing else go parentDir
+
+isCabalFile :: FilePath -> Bool
+isCabalFile path   = cabalExtension `isSuffixOf` path &&
+                     length path > length cabalExtension
+  where
+    cabalExtension = ".cabal"
 
 --------------------------------------------------------------------------------
 mkCabalConfig :: FilePath -> [String] -> IO CabalConfig
 --------------------------------------------------------------------------------
 mkCabalConfig path opts = do
     fileStatus <- getFileStatus path
-    return $ CabalConfig { cabalConfigPath = path
-                         , cabalConfigOpts = opts
-                         , cabalConfigLastUpdatedAt = modificationTime fileStatus
-                         }
+    return CabalConfig { cabalConfigPath = path
+                       , cabalConfigOpts = opts
+                       , cabalConfigLastUpdatedAt = modificationTime fileStatus
+                       }
