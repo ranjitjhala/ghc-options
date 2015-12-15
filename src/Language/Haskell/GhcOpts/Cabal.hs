@@ -144,7 +144,7 @@ getPackageGhcOpts path mbStack opts = do
           let sandboxConfig = takeDirectory path </> "cabal.sandbox.config"
 
           exists <- lift $ doesFileExist sandboxConfig
-          when (exists) $ do
+          when exists $ do
             sandboxPackageDb <- lift $ getSandboxPackageDB sandboxConfig
             modify $ \x -> x { configPackageDBs = [Just sandboxPackageDb] }
 

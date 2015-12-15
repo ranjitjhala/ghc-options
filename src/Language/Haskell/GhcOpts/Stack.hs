@@ -30,7 +30,7 @@ getStackConfig (Just p) = do
   mbYaml <- getStackYaml p
   case mbYaml of
     Nothing -> return Nothing
-    Just _  -> do mdbs <- return Nothing -- FIXME getStackDbs p
+    Just _  -> do mdbs <- getStackDbs p
                   mdst <- getStackDist p
                   return $ StackConfig <$> mdst <*> mdbs
 
