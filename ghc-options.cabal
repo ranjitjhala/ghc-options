@@ -2,7 +2,7 @@
 -- documentation, see http://haskell.org/cabal/users-guide/
 
 name:                ghc-options
-version:             0.1.0.0
+version:             0.2.0.0
 synopsis:            Utilities for extracting GHC options needed to compile a given Haskell target.
 description:         'ghcopts' is a library that makes it easy to determine what
                      GHC options are needed to compile a file. It was built 
