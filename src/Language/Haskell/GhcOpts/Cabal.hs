@@ -127,7 +127,7 @@ getDistDir path = do
 
 getPackageGhcOpts :: FilePath -> Maybe StackConfig -> [String] -> IO (Either String [String])
 getPackageGhcOpts path mbStack opts = do
-    putStrLn $  "getPackageGhcOpts: path = " ++ path
+    -- putStrLn $  "getPackageGhcOpts: path = " ++ path
     getPackageGhcOpts' `catch` (\e -> return $ Left $ "Cabal error: " ++ ioeGetErrorString (e :: IOException))
   where
     getPackageGhcOpts' :: IO (Either String [String])
@@ -178,7 +178,7 @@ getPackageGhcOpts path mbStack opts = do
                                        , ghcOptPackages = overNubListR (filter (\(_, pkgId, _) -> Just (pkgName pkgId) /= mbLibName)) $ (ghcOptPackages ghcOpts')
                                        , ghcOptSourcePath = overNubListR (map (baseDir </>)) (ghcOptSourcePath ghcOpts')
                                        }
-                putStrLn "configuring"
+                -- putStrLn "configuring"
                 (ghcInfo,_,_) <- GHC.configure silent Nothing Nothing defaultProgramConfiguration
 
                 return $ Right $ renderGhcOptions ghcInfo ghcOpts

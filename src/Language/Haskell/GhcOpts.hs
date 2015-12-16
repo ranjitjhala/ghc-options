@@ -11,15 +11,17 @@ import Language.Haskell.GhcOpts.Types
 import Language.Haskell.GhcOpts.Cabal
 import Language.Haskell.GhcOpts.Stack
 
-ghcOpts :: FilePath -> IO (Either String Config)
-ghcOpts f = do
-  putStrLn $ "File: " ++ f
-  cmd <- fileCommand f
-  putStrLn $ "Command: " ++ show cmd
-  cf0 <- newConfig cmd
-  putStrLn $ "NewCfg: " ++ show cf0
-  packageConfig cf0
-
+ghcOpts   :: FilePath -> IO (Either String Config)
+ghcOpts f = fileCommand f >>= newConfig >>= packageConfig 
+{-
+  do
+     -- putStrLn $ "File: " ++ f
+     cmd <- fileCommand f
+     -- putStrLn $ "Command: " ++ show cmd
+     cf0 <- newConfig cmd
+     -- putStrLn $ "NewCfg: " ++ show cf0
+     packageConfig cf0
+-}
 
 fileCommand :: FilePath -> IO CommandExtra
 fileCommand f = do
