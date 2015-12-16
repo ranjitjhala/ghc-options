@@ -10,6 +10,13 @@ import Data.Char (isSpace)
 import System.FilePath
 import System.Directory
 
+
+getDirectoryContentsIfExists :: FilePath -> IO [FilePath]
+getDirectoryContentsIfExists dir = do
+  b <- doesFileExist dir
+  if b then getDirectoryContents dir
+       else return []
+
 absoluteFilePath :: FilePath -> IO FilePath
 absoluteFilePath p = if isAbsolute p then return p else do
     dir <- getCurrentDirectory

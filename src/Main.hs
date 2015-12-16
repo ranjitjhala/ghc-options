@@ -2,7 +2,7 @@ import System.Environment
 
 import Language.Haskell.GhcOpts
 
-main :: IO ()
+main :: IO () 
 main = do
   f:_ <- getArgs
   z   <- ghcOpts f

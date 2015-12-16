@@ -4,4 +4,4 @@ packages:
 extra-deps: []
 
 # for GHC 7.10
-resolver: nightly-2015-08-26
+resolver: nightly-2015-09-24

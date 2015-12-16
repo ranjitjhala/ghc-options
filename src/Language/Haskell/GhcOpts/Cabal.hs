@@ -46,7 +46,7 @@ import Distribution.Version (Version(..))
 import System.IO.Error (ioeGetErrorString)
 import System.Directory (getCurrentDirectory, doesFileExist, getDirectoryContents)
 import System.FilePath (takeDirectory, splitFileName, (</>))
-
+import Language.Haskell.GhcOpts.Utils
 
 componentName :: Component -> ComponentName
 componentName =
@@ -116,15 +116,24 @@ stackifyFlags cfg (Just si) = cfg { configDistPref    = toFlag dist
 -- via: https://groups.google.com/d/msg/haskell-stack/8HJ6DHAinU0/J68U6AXTsasJ
 -- cabal configure --package-db=clear --package-db=global --package-db=$(stack path --snapshot-pkg-db) --package-db=$(stack path --local-pkg-db)
 
+-- returns the right 'dist' directory in the case of a sandbox
+getDistDir :: FilePath -> IO FilePath
+getDistDir path = do
+  let dir = takeDirectory path </> "dist"
+  contents <- getDirectoryContentsIfExists dir
+  return $ case find ("dist-sandbox-" `isPrefixOf`) contents of
+             Just sbdir -> dir </> sbdir
+             Nothing    -> dir
+
 getPackageGhcOpts :: FilePath -> Maybe StackConfig -> [String] -> IO (Either String [String])
 getPackageGhcOpts path mbStack opts = do
-    getPackageGhcOpts' `catch` (\e -> do
-        return $ Left $ "Cabal error: " ++ (ioeGetErrorString (e :: IOException)))
+    putStrLn $  "getPackageGhcOpts: path = " ++ path
+    getPackageGhcOpts' `catch` (\e -> return $ Left $ "Cabal error: " ++ ioeGetErrorString (e :: IOException))
   where
     getPackageGhcOpts' :: IO (Either String [String])
     getPackageGhcOpts' = do
         genPkgDescr <- readPackageDescription silent path
-        distDir     <- getDistDir
+        distDir     <- getDistDir path
 
         let programCfg = defaultProgramConfiguration
         let initCfgFlags = (defaultConfigFlags programCfg)
@@ -160,7 +169,6 @@ getPackageGhcOpts path mbStack opts = do
         case getGhcVersion localBuildInfo of
             Nothing -> return $ Left "GHC is not configured"
 
-#if __GLASGOW_HASKELL__ >= 709
             Just _  -> do
                 let mbLibName = pkgLibName pkgDescr
                 let ghcOpts' = foldl' mappend mempty $ map (getComponentGhcOptions localBuildInfo) $ flip allComponentsBy (\c -> c) . localPkgDescr $ localBuildInfo
@@ -174,25 +182,6 @@ getPackageGhcOpts path mbStack opts = do
                 (ghcInfo,_,_) <- GHC.configure silent Nothing Nothing defaultProgramConfiguration
 
                 return $ Right $ renderGhcOptions ghcInfo ghcOpts
-#else
-            Just ghcVersion -> do
-                let mbLibName = pkgLibName pkgDescr
-                let ghcOpts' = foldl' mappend mempty $ map (getComponentGhcOptions localBuildInfo) $ flip allComponentsBy (\c -> c) . localPkgDescr $ localBuildInfo
-
-                    ghcOpts = ghcOpts' { ghcOptExtra = filter (/= "-Werror") $ nub $ ghcOptExtra ghcOpts'
-                                       , ghcOptPackages = filter (\(_, pkgId) -> Just (pkgName pkgId) /= mbLibName) $ nub (ghcOptPackages ghcOpts')
-                                       , ghcOptSourcePath = map (baseDir </>) (ghcOptSourcePath ghcOpts')
-                                       }
-                return $ Right $ renderGhcOptions ghcVersion ghcOpts
-#endif
-
-    -- returns the right 'dist' directory in the case of a sandbox
-    getDistDir = do
-        let dir = takeDirectory path </> "dist"
-        contents <- getDirectoryContents dir
-        return $ case find ("dist-sandbox-" `isPrefixOf`) contents of
-                      Just sbdir -> dir </> sbdir
-                      Nothing    -> dir
 
 pkgLibName :: PackageDescription -> Maybe PackageName
 pkgLibName pkgDescr = if hasLibrary pkgDescr

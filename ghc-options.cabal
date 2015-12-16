@@ -29,13 +29,24 @@ executable ghcopts
                        Cabal >= 1.22,
                        bin-package-db,
                        unix
-                       
+
+  other-modules:       Language.Haskell.GhcOpts,
+                       Language.Haskell.GhcOpts.Types,
+                       Language.Haskell.GhcOpts.Stack,
+                       Language.Haskell.GhcOpts.Cabal,
+                       Language.Haskell.GhcOpts.Utils
+
   hs-source-dirs:      src
   default-language:    Haskell2010
   cpp-options:       -DENABLE_CABAL
 
 library
-  exposed-modules:     Language.Haskell.GhcOpts
+  exposed-modules:     Language.Haskell.GhcOpts,
+                       Language.Haskell.GhcOpts.Types,
+                       Language.Haskell.GhcOpts.Stack,
+                       Language.Haskell.GhcOpts.Cabal,
+                       Language.Haskell.GhcOpts.Utils
+
   build-depends:       base >=4.8 && <4.9,
                        process,
                        filepath,
@@ -44,7 +55,7 @@ library
                        Cabal >= 1.22,
                        bin-package-db,
                        unix
-                       
+
   hs-source-dirs:      src
   default-language:    Haskell2010
   cpp-options:       -DENABLE_CABAL
