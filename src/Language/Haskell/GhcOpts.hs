@@ -3,6 +3,7 @@ module Language.Haskell.GhcOpts
   , module Language.Haskell.GhcOpts.Types
   ) where
 
+import qualified GHC
 import System.Directory (setCurrentDirectory)
 import System.FilePath  (takeDirectory)
 
@@ -12,16 +13,18 @@ import Language.Haskell.GhcOpts.Cabal
 import Language.Haskell.GhcOpts.Stack
 
 ghcOpts   :: FilePath -> IO (Either String Config)
-ghcOpts f = fileCommand f >>= newConfig >>= packageConfig 
-{-
-  do
-     -- putStrLn $ "File: " ++ f
-     cmd <- fileCommand f
-     -- putStrLn $ "Command: " ++ show cmd
-     cf0 <- newConfig cmd
-     -- putStrLn $ "NewCfg: " ++ show cf0
-     packageConfig cf0
--}
+ghcOpts f = fileCommand f >>= newConfig >>= packageConfig
+
+
+dynFlags :: [String] -> IO Int -- [DynFlags]GHC.Ghc ()
+dynFlags ghcOpts = do
+  ifs <- initDynFlags
+  (finalDynFlags, _, _) <- GHC.parseDynamicFlags ifs (map GHC.noLoc ghcOpts)
+  return finalDynFlags
+
+initDynFlags = do
+  ifs <- GHC.getSessionDynFlags
+  return ifs { GHC.ghcLink = GHC.NoLink, GHC.hscTarget = GHC.HscInterpreted }
 
 fileCommand :: FilePath -> IO CommandExtra
 fileCommand f = do

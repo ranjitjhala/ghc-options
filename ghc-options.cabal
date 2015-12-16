@@ -36,7 +36,8 @@ executable ghcopts
                        transformers,
                        Cabal >= 1.22,
                        bin-package-db,
-                       unix
+                       unix,
+                       ghc >= 7.10.2
 
   other-modules:       Language.Haskell.GhcOpts,
                        Language.Haskell.GhcOpts.Types,
