@@ -3,8 +3,16 @@
 
 name:                ghc-options
 version:             0.1.0.0
-synopsis:            Utilities for extracting the GHC options needed to compile a given target Haskell file.
--- description:
+synopsis:            Utilities for extracting GHC options needed to compile a given Haskell target.
+description:         'ghcopts' is a library that makes it easy to determine what
+                     GHC options are needed to compile a file. It was built 
+                     by extracting the relevant code from 'hdevtools' which 
+                     queries 'cabal' and 'stack' to determine the locations 
+                     of various package databases, in order to pass them to 
+                     GHC to process a target file. We have refactored this 
+                     code into a separate package so that it can be used by 
+                     other tools built on the GHC API.
+
 homepage:            https://github.com/ranjitjhala/ghc-options.git
 license:             MIT
 license-file:        LICENSE
