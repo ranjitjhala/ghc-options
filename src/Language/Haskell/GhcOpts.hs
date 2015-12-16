@@ -1,9 +1,12 @@
 module Language.Haskell.GhcOpts
   ( ghcOpts
+  , ghcFlags
   , module Language.Haskell.GhcOpts.Types
   ) where
 
 import qualified GHC
+import qualified GHC.Paths
+
 import System.Directory (setCurrentDirectory)
 import System.FilePath  (takeDirectory)
 
@@ -12,19 +15,29 @@ import Language.Haskell.GhcOpts.Types
 import Language.Haskell.GhcOpts.Cabal
 import Language.Haskell.GhcOpts.Stack
 
+--------------------------------------------------------------------------------
 ghcOpts   :: FilePath -> IO (Either String Config)
-ghcOpts f = fileCommand f >>= newConfig >>= packageConfig
+--------------------------------------------------------------------------------
+ghcOpts f = fileCommand f >>=
+            newConfig     >>=
+            packageConfig
 
+--------------------------------------------------------------------------------
+ghcFlags  :: FilePath -> IO (Either String GHC.DynFlags)
+--------------------------------------------------------------------------------
+ghcFlags f = fileCommand f >>=
+             newConfig     >>=
+             packageConfig >>=
+             mapM (optFlags . configGhcOpts)
 
-dynFlags :: [String] -> IO Int -- [DynFlags]GHC.Ghc ()
-dynFlags ghcOpts = do
-  ifs <- initDynFlags
-  (finalDynFlags, _, _) <- GHC.parseDynamicFlags ifs (map GHC.noLoc ghcOpts)
-  return finalDynFlags
-
-initDynFlags = do
-  ifs <- GHC.getSessionDynFlags
-  return ifs { GHC.ghcLink = GHC.NoLink, GHC.hscTarget = GHC.HscInterpreted }
+optFlags :: [String] -> IO GHC.DynFlags
+optFlags opts  = GHC.runGhc (Just GHC.Paths.libdir) $ do
+  ifs0        <- GHC.getSessionDynFlags
+  let ifs      = ifs0 { GHC.ghcLink   = GHC.NoLink
+                      , GHC.hscTarget = GHC.HscInterpreted
+                      }
+  (dfs, _, _) <- GHC.parseDynamicFlags ifs (map GHC.noLoc opts)
+  return dfs
 
 fileCommand :: FilePath -> IO CommandExtra
 fileCommand f = do
