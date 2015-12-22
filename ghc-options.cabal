@@ -51,7 +51,8 @@ executable ghcopts
   cpp-options:       -DENABLE_CABAL
 
 library
-  exposed-modules:     Language.Haskell.GhcOpts
+  exposed-modules:     Language.Haskell.GhcOpts,
+                       Language.Haskell.GhcOpts.Types
 
   build-depends:       base >=4.8 && <4.9,
                        process,
