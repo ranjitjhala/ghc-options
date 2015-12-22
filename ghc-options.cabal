@@ -53,6 +53,10 @@ executable ghcopts
 library
   exposed-modules:     Language.Haskell.GhcOpts,
                        Language.Haskell.GhcOpts.Types
+                       Language.Haskell.GhcOpts.Stack,
+                       Language.Haskell.GhcOpts.Cabal,
+                       Language.Haskell.GhcOpts.Utils
+
 
   build-depends:       base >=4.8 && <4.9,
                        process,
